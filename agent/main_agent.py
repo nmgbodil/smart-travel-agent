@@ -1,6 +1,8 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_ollama import ChatOllama
 
+import asyncio
+
 llm = ChatOllama(model="mistral", temperature=0)
 system_prompt = '''You are a smart travel assistant that helps users plan short 
 trips by providing recommendations for activities to do in the city depending on the weather,
@@ -42,4 +44,4 @@ async def main_agent():
     print("================================= Smart Travel Agent =================================")
 
 if __name__ == "__main__":
-    main_agent()
+    asyncio.run(main_agent())

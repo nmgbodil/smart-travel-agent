@@ -1,27 +1,28 @@
 from langgraph.prebuilt import create_react_agent
 from langchain_ollama import ChatOllama
 
+from tools import weather_tool
+
 import asyncio
 
 llm = ChatOllama(model="mistral", temperature=0)
-system_prompt = '''You are a smart travel assistant that helps users plan short 
-trips by providing recommendations for activities to do in the city depending on the weather,
-calculating travel cost estimates and summarizing all into a final trip suggestion.
-Based on feedback from the user you update the travel plans to match their feedback and
-you constantly save the plans in a markdown with a suitable name.
+system_prompt = '''You are a smart travel assistant that helps users plan short trips given the users intended destination and travel dates
+by providing recommendations for activities to do each day in the city depending on
+the weather that day, calculating travel cost estimates and summarizing all into a final
+trip suggestion. Based on feedback from the user you update the travel plans to match
+their feedback and you constantly save the plans in a markdown with a suitable name.
 '''
 
-def get_weather(city: str) -> str:
-    '''Get weather for a given city.'''
-    return f"It is currently sunny in {city}"
+# def get_weather(city: str) -> str:
+#     '''Get weather for a given city.'''
+#     return f"It is currently sunny in {city}"
 
 async def main_agent():
     messages = [{"role": "system", "content": system_prompt}]
 
     agent = create_react_agent(
         model=llm,
-        tools=[get_weather],
-        # prompt="You are a helpful assistant"
+        tools=[weather_tool.get_weather]
     )
 
     print("================================= Smart Travel Agent =================================")
@@ -35,7 +36,7 @@ async def main_agent():
             break
 
         messages.append({"role": "user", "content": user_input})
-        responses = await agent.invoke({"messages": messages})
+        responses = await agent.ainvoke({"messages": messages})
         ai_response = responses['messages'][-1].content
         print(f'\nTravel Assistant: {ai_response}')
         messages.append({"role": "assistant", "content": ai_response})
